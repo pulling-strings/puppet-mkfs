@@ -16,16 +16,16 @@
 #
 # Copyright 2013 Ronen Narkis, unless otherwise noted.
 #
-class mkfs($device='',$type='ext4', $dest='') {
+define mkfs::device($type='ext4', $dest='') {
 
-  exec{'create fs':
-    command => "mkfs.${type} ${device} -F",
+  exec{"create fs $name":
+    command => "mkfs.${type} ${name} -F",
     user    => 'root',
     path    => ['/usr/bin','/sbin'],
-    unless  => "/usr/bin/file -s ${device} | /bin/grep ${type}",
+    unless  => "/usr/bin/file -s ${name} | /bin/grep ${type}",
   } ~>
 
-  exec{'mount all':
+  exec{"mount all $name":
     command     => 'mount -a',
     user        => 'root',
     path        => ['/usr/bin','/bin'],
@@ -33,16 +33,13 @@ class mkfs($device='',$type='ext4', $dest='') {
     require     => Mount[$dest]
   }
 
-  file{$dest:
-    ensure => directory,
-  } ->
-
   mount { $dest:
-    ensure    => 'present',
-    device    => $device,
-    fstype    => $type,
-    options   => 'defaults',
-    atboot    => 'true',
-    remounts  => false
+    ensure   => 'present',
+    device   => $name,
+    fstype   => $type,
+    options  => 'defaults',
+    atboot   => 'true',
+    remounts => false,
+    require  => File[$dest]
   }
 }
