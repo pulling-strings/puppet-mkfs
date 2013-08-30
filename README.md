@@ -4,11 +4,13 @@ A basic mkfs and mount module for puppet.
 
 # Usage
 
+```puppet
 # dest should already be in place
 class{'mkfs':
  device => '/dev/sdb',
  dest => '/mnt/drive/'
 }
+```
 
 # Copyright and license
 
