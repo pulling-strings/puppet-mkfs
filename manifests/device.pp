@@ -22,6 +22,7 @@ define mkfs::device($type='ext4', $dest='') {
     command => "mkfs.${type} ${name} -F",
     user    => 'root',
     path    => ['/usr/bin','/sbin'],
+    timeout => 0,
     unless  => "/usr/bin/file -s ${name} | /bin/grep ${type}",
   } ~>
 
