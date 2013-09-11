@@ -16,7 +16,7 @@
 #
 # Copyright 2013 Ronen Narkis, unless otherwise noted.
 #
-define mkfs::device($type='ext4', $dest='') {
+define mkfs::device($type='ext4', $dest='', $user = 'root', $group = 'root') {
 
   exec{"create fs $name":
     command => "mkfs.${type} ${name} -F",
@@ -32,6 +32,22 @@ define mkfs::device($type='ext4', $dest='') {
     path        => ['/usr/bin','/bin'],
     refreshonly => true,
     require     => Mount[$dest]
+  } ~>
+
+  exec{"set user $user on $dest":
+    command     => "chown $user $dest -R",
+    user        => 'root',
+    path        => ['/usr/bin','/bin'],
+    refreshonly => true,
+    require     => Mount[$dest]
+  } ~>
+
+  exec{"set group $group on $dest":
+    command     => "chgrp $group $dest -R",
+    user        => 'root',
+    path        => ['/usr/bin','/bin'],
+    refreshonly => true,
+    require     => Mount[$dest]
   }
 
   mount { $dest:
@@ -43,4 +59,6 @@ define mkfs::device($type='ext4', $dest='') {
     remounts => false,
     require  => File[$dest]
   }
+
+
 }
