@@ -16,17 +16,28 @@
 #
 # Copyright 2013 Ronen Narkis, unless otherwise noted.
 #
-define mkfs::device($type='ext4', $dest='', $user = 'root', $group = 'root') {
+define mkfs::device(
+  $type='ext4',
+  $dest='',
+  $user = 'root',
+  $group = 'root',
+  $lazy=true) {
 
-  exec{"create fs $name":
-    command => "mkfs.${type} ${name} -F",
+  if($lazy){
+    $mkfs = "mkfs.${type} ${name} -F -E lazy_itable_init"
+  } else {
+    $mkfs = "mkfs.${type} ${name} -F"
+  }
+
+  exec{"create fs ${name}":
+    command => $mkfs,
     user    => 'root',
     path    => ['/usr/bin','/sbin'],
     timeout => 0,
     unless  => "/usr/bin/file -s ${name} | /bin/grep ${type}",
   } ~>
 
-  exec{"mount all $name":
+  exec{"mount all ${name}":
     command     => 'mount -a',
     user        => 'root',
     path        => ['/usr/bin','/bin'],
@@ -34,16 +45,16 @@ define mkfs::device($type='ext4', $dest='', $user = 'root', $group = 'root') {
     require     => Mount[$dest]
   } ~>
 
-  exec{"set user $user on $dest":
-    command     => "chown $user $dest -R",
+  exec{"set user ${user} on ${dest}":
+    command     => "chown ${user} ${dest} -R",
     user        => 'root',
     path        => ['/usr/bin','/bin'],
     refreshonly => true,
     require     => Mount[$dest]
   } ~>
 
-  exec{"set group $group on $dest":
-    command     => "chgrp $group $dest -R",
+  exec{"set group ${group} on ${dest}":
+    command     => "chgrp ${group} ${dest} -R",
     user        => 'root',
     path        => ['/usr/bin','/bin'],
     refreshonly => true,
