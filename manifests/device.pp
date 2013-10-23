@@ -37,8 +37,8 @@ define mkfs::device(
     unless  => "/usr/bin/file -s ${name} | /bin/grep ${type}",
   } ~>
 
-  exec{"mount all ${name}":
-    command     => 'mount -a',
+  exec{"mount ${name}":
+    command     => "mount ${name} ${dest}",
     user        => 'root',
     path        => ['/usr/bin','/bin'],
     refreshonly => true,
